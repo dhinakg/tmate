@@ -1,6 +1,6 @@
 # configure.ac
 
-AC_INIT(tmate, 2.4.0)
+AC_INIT([tmate],[2.4.0])
 
 AM_SILENT_RULES([yes])
 AC_CONFIG_AUX_DIR(etc)
@@ -28,7 +28,7 @@ test "$sysconfdir" = '${prefix}/etc' && sysconfdir=/etc
 found_debug=yes
 AC_ARG_ENABLE(
 	debug,
-	AC_HELP_STRING(--enable-debug, enable debug build flags),
+	AS_HELP_STRING([--enable-debug],[enable debug build flags]),
 	found_debug=$enable_debug
 )
 AM_CONDITIONAL(IS_DEBUG, test "x$found_debug" = xyes)
@@ -36,7 +36,7 @@ AM_CONDITIONAL(IS_DEBUG, test "x$found_debug" = xyes)
 # Is this --enable-coverage?
 AC_ARG_ENABLE(
 	coverage,
-	AC_HELP_STRING(--enable-coverage, enable coverage build flags),
+	AS_HELP_STRING([--enable-coverage],[enable coverage build flags]),
 	found_coverage=$enable_coverage
 )
 AM_CONDITIONAL(IS_COVERAGE, test "x$found_coverage" = xyes)
@@ -44,7 +44,7 @@ AM_CONDITIONAL(IS_COVERAGE, test "x$found_coverage" = xyes)
 # Is this a static build?
 AC_ARG_ENABLE(
 	static,
-	AC_HELP_STRING(--enable-static, create a static build),
+	AS_HELP_STRING([--enable-static],[create a static build]),
 	found_static=$enable_static
 )
 if test "x$found_static" = xyes; then
@@ -201,7 +201,7 @@ fi
 
 PKG_CHECK_MODULES(
   MSGPACK,
-  msgpack >= 1.1.0,
+  msgpack-c >= 1.1.0,
   [
     CPPFLAGS="$MSGPACK_CFLAGS $CPPFLAGS"
     LIBS="$MSGPACK_LIBS $LIBS"
@@ -229,31 +229,23 @@ fi
 
 # Check for b64_ntop.
 AC_MSG_CHECKING(for b64_ntop)
-AC_TRY_LINK(
-	[
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 		#include <sys/types.h>
 		#include <netinet/in.h>
 		#include <resolv.h>
-	],
-	[b64_ntop(NULL, 0, NULL, 0);],
-	found_b64_ntop=yes,
-	found_b64_ntop=no
-)
+	]], [[b64_ntop(NULL, 0, NULL, 0);]])],[found_b64_ntop=yes],[found_b64_ntop=no
+])
 if test "x$found_b64_ntop" = xno; then
 	AC_MSG_RESULT(no)
 
 	AC_MSG_CHECKING(for b64_ntop with -lresolv)
 	LIBS="$LIBS -lresolv"
-	AC_TRY_LINK(
-		[
+	AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 			#include <sys/types.h>
 			#include <netinet/in.h>
 			#include <resolv.h>
-		],
-		[b64_ntop(NULL, 0, NULL, 0);],
-		found_b64_ntop=yes,
-		found_b64_ntop=no
-	)
+		]], [[b64_ntop(NULL, 0, NULL, 0);]])],[found_b64_ntop=yes],[found_b64_ntop=no
+	])
 	if test "x$found_b64_ntop" = xno; then
 		AC_MSG_RESULT(no)
 	fi
@@ -603,4 +595,5 @@ AM_CONDITIONAL(IS_HPUX, test "x$PLATFORM" = xhpux)
 AM_CONDITIONAL(IS_UNKNOWN, test "x$PLATFORM" = xunknown)
 
 # autoconf should create a Makefile.
-AC_OUTPUT(Makefile)
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT

@@ -26,3 +26,7 @@ ext/
 libssh-*/
 msgpack-*/
 releases/
+
+deps/
+depbuild/
+out/
