@@ -23,15 +23,26 @@ jobs:
   MacOS:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
+    - run: mkdir out
+    - run: mkdir -p libssh/build
+    - run: curl -LO https://www.libssh.org/files/0.10/libssh-0.10.5.tar.xz
+    - run: tar -xf libssh*.tar.xz -C libssh --strip-components=1
     - run: |
-        brew install automake msgpack libssh
+        cd libssh/build
+        cmake -DCMAKE_INSTALL_PREFIX:PATH=../../out -DWITH_SFTP=OFF -DWITH_SERVER=OFF -DWITH_PCAP=OFF -DBUILD_SHARED_LIBS=OFF -DWITH_GSSAPI=OFF ..
+        make -j $(nproc)
+        make install
+    - run: |
+        brew install automake msgpack
         autoupdate
         ./autogen.sh
-        ./configure
-        make
+        ./configure --prefix=out --enable-static
+        make -j $(nproc)
         make install
-
-
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        path: out
 
 
